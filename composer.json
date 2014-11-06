@@ -1,0 +1,27 @@
+{
+	"name": "antons/silverstripe-ssp",
+	"type": "silverstripe-module",
+	"description": "Authentication module for Silverstripe 3.1+ using the simpleSAMLphp library.",
+	"homepage": "https://github.com/antons-/silverstripe-ssp",
+	"keywords": ["silverstripe", "saml", "simplesaml", "simplesamlphp", "sso"],
+	"license": "BSD-3-Clause",
+	"authors": [
+		{
+			"name": "Anton Smith",
+			"email": "anton.smith@op.ac.nz",
+			"homepage": "http://newsplash.co.nz"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/antons-/silverstripe-ssp/issues"
+	},
+	"require": {
+		"php": ">=5.3",
+		"composer/installers": "*",
+		"silverstripe/framework": "3.1.*",
+		"openid/php-openid": "dev-master#ee669c6a9d4d95b58ecd9b6945627276807694fb as 2.2.2",
+		"simplesamlphp/saml2": "~0.3",
+		"simplesamlphp/xmlseclibs": "~1.3.1",
+		"simplesamlphp/simplesamlphp": "1.13.1"
+	}
+}
