@@ -54,13 +54,6 @@ composer require antons/silverstripe-ssp
 	}
 	```
 
-2. Insert the following `RewriteCond` before the final `RewriteRule` in the root `.htaccess` file for your Silverstripe website.
-
-	```
-	#Add line before 'RewriteRule .* framework/main.php?url=%1&%{QUERY_STRING} [L]'
-	RewriteCond %{REQUEST_URI} !simplesaml
-	```
-
 ### SimpleSAML configuration
 1. Make a copy of the default configuration files:
 	```

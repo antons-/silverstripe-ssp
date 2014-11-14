@@ -55,7 +55,9 @@ class SSPSecurity extends Controller {
     }
 
     public function index() {
-        return $this->httpError(404);
+        $this->forceSSL();
+        
+        return $this->redirect(BASE_URL . 'simplesaml/module.php/core/frontpage_welcome.php');
     }
     
     /**

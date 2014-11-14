@@ -6,4 +6,5 @@ Director:
   rules:
     'Security//$Action/$ID/$OtherID': 'SSPSecurity'
     'security//$Action/$ID/$OtherID': 'SSPSecurity'
+    'simplesaml' : 'SSPSecurity' 
 
