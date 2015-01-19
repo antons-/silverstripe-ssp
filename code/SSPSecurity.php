@@ -84,8 +84,9 @@ class SSPSecurity extends Controller {
         $member->login();
         
         //Use the BackURL for redirection if avaiable, or use the default logged in URL
-        $dest = !empty(Session::get('BackURL')) ? Session::get('BackURL') : 
-                $this->config()->default_logged_in_url;
+        $backUrl = Session::get('BackURL');
+        
+        $dest = !empty($backUrl) ? $backUrl :  $this->config()->default_logged_in_url;
         
         Session::clear('BackURL');
         
