@@ -44,7 +44,8 @@ class SSPSecurity extends Controller {
         'index',
         'login',
         'logout',
-        'loggedout'
+        'loggedout',
+        'ping'
     );
 
     public function init() {

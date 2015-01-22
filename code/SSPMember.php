@@ -10,7 +10,7 @@ class SSPMember extends DataExtension {
     );
     
     public function updateCMSFields(FieldList $fields) {
-        $fields->push(new ReadonlyField('Username'));
+        $fields->addFieldToTab('Root.Main', new ReadonlyField('Username'));
     }
     
     public function updateSummaryFields(&$fields) {
