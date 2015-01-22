@@ -68,7 +68,7 @@ class SSPSecurity extends Controller {
     public function login() {
         $this->forceSSL();
 
-        $auth = $this->getAuthenticator();
+        $auth = self::get_authenticator();
         
         $auth->requireAuth(array(
             'ReturnTo' => '/Security/login',
@@ -104,7 +104,7 @@ class SSPSecurity extends Controller {
     public function logout() {
         $this->forceSSL();
         
-        $auth = $this->getAuthenticator();
+        $auth = self::get_authenticator();
         
         $auth->logout(array(
             'ReturnTo' => '/Security/loggedout'
@@ -125,7 +125,7 @@ class SSPSecurity extends Controller {
             $member->logout();
         }
         
-        $auth = $this->getAuthenticator();
+        $auth = self::get_authenticator();
         
         $auth->logoutComplete();
         
@@ -139,7 +139,7 @@ class SSPSecurity extends Controller {
      * Gets the current SSPAuthenticator class used for SimpleSAMLphp authentication
      * @return SSPAuthenticator Active session for authentication
      */
-    public function getAuthenticator() {
+    private static function get_authenticator() {
         
         if(!is_null(Session::get('ssp_current_auth'))) {
             $ssp = unserialize(Session::get('ssp_current_auth'));   
@@ -154,15 +154,15 @@ class SSPSecurity extends Controller {
             }
         }
         
-        return $this->initAuthenticator();   
+        return self::init_authenticator();   
     }
     
     /**
      * Initialises the selected SSPAuthenticator class for SimpleSAMLphp authentication
      * @return SSPAuthenticator Active session for authentication
      */
-    private function initAuthenticator() {
-        $authenticators = $this->config()->authenticators;
+    private static function init_authenticator() {
+        $authenticators = self::config()->authenticators;
         
         if(!$authenticators || !is_array($authenticators)) {
             user_error("Expected array of authentication sources in SSPSecurity::authenticators", E_USER_ERROR);
@@ -177,7 +177,7 @@ class SSPSecurity extends Controller {
         
         //Else look for the default authentication source
         else {
-            $default_auth = $this->config()->default_authenticator;
+            $default_auth = self::config()->default_authenticator;
             
             $env = Director::get_environment_type();
             
