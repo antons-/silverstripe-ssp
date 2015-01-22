@@ -45,7 +45,8 @@ class SSPSecurity extends Controller {
         'login',
         'logout',
         'loggedout',
-        'ping'
+        'ping',
+        'LoginForm'
     );
 
     public function init() {
@@ -133,6 +134,21 @@ class SSPSecurity extends Controller {
         $auth->onAfterLogout();;
     
         return $this->redirect(str_replace('https', 'http', Director::absoluteBaseURL()));
+    }
+    
+    /**
+     * Redirects the user to the identity provider portal for login
+     */
+    public function LoginForm() {
+        $this->forceSSL();
+        
+        $auth = $this->getAuthenticator();
+        
+        $auth->login(array(
+            'ForceAuthn' => TRUE,
+            'ReturnTo' => '/Security/login',
+            'ReturnCallback' => $auth->loginComplete()
+        ));
     }
     
     /**
