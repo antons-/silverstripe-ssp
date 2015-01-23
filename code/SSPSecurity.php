@@ -68,6 +68,8 @@ class SSPSecurity extends Controller {
      */
     public function login() {
         $this->forceSSL();
+        
+        if(isset($_GET['BackURL'])) Session::set("BackURL", $_GET['BackURL']);
 
         $auth = $this->getAuthenticator();
         
@@ -141,6 +143,8 @@ class SSPSecurity extends Controller {
      */
     public function LoginForm() {
         $this->forceSSL();
+        
+        if(isset($_SERVER['HTTP_REFERER'])) Session::set("BackURL", $_SERVER['HTTP_REFERER']);
         
         $auth = $this->getAuthenticator();
         
