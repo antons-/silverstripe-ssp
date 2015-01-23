@@ -136,6 +136,39 @@ class SSPSecurity extends Controller {
     }
 
     /**
+     * Attempt to passively authenticate the user with the identity provider, then Silverstripe.
+     * 
+     * If the user is not authenticated in Silverstripe but is on the identity provider, this will 
+     * passively authenticate them in Silverstripe and redirect them to the current page. If the 
+     * user is already authenticated in Silverstripe this function returns nothing.
+     * 
+     * Passive authentication is not enabled by default and an explicit call to 'SSPSecurity::passive_login()'
+     * needs to be added to your 'Page_Controller->init()' function.
+     * 
+     * Please note that passive login only works with the default SSPAuthenticator. Currently it
+     * is not possible to specify a custom SSPAuthenticator on demand.
+     * 
+     * @see SSPSecurity->login()
+     */
+    public static function passive_login() {
+        self::force_ssl();
+        
+        $auth = self::get_authenticator();
+        
+        $attempted = Session::get('ssp_passive_attempted');
+        
+        if (!$auth->isAuthenticated() && !isset($attempted)) {
+            Session::set('ssp_passive_attempted', 1);
+            $auth->login(array(
+                'isPassive' => TRUE,
+                'ErrorURL' => $_SERVER['REQUEST_URI'],
+                'ReturnTo' => '/Security/login',
+                'ReturnCallback' => $auth->loginComplete()
+            ));
+        }
+    }
+
+    /**
      * Gets the current SSPAuthenticator class used for SimpleSAMLphp authentication
      * @return SSPAuthenticator Active session for authentication
      */
