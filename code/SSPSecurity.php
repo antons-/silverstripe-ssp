@@ -56,7 +56,7 @@ class SSPSecurity extends Controller {
     }
 
     public function index() {
-        $this->forceSSL();
+        self::force_ssl();
         
         return $this->redirect(BASE_URL . 'simplesaml/module.php/core/frontpage_welcome.php');
     }
@@ -66,7 +66,7 @@ class SSPSecurity extends Controller {
      * @see SimpleSAML_Auth_Simple->login()
      */
     public function login() {
-        $this->forceSSL();
+        self::force_ssl();
 
         $auth = self::get_authenticator();
         
@@ -102,7 +102,7 @@ class SSPSecurity extends Controller {
      * @see SimpleSAML_Auth_Simple->logout()
      */
     public function logout() {
-        $this->forceSSL();
+        self::force_ssl();
         
         $auth = self::get_authenticator();
         
@@ -118,7 +118,7 @@ class SSPSecurity extends Controller {
      * @see logout()
      */
     public function loggedout() {
-        $this->forceSSL();
+        self::force_ssl();
         
         //Log out Silverstripe members
         if($member = Member::currentUser()) {
@@ -134,7 +134,7 @@ class SSPSecurity extends Controller {
     
         return $this->redirect(str_replace('https', 'http', Director::absoluteBaseURL()));
     }
-    
+
     /**
      * Gets the current SSPAuthenticator class used for SimpleSAMLphp authentication
      * @return SSPAuthenticator Active session for authentication
@@ -218,8 +218,8 @@ class SSPSecurity extends Controller {
     /**
      * Forces HTTPS mode if set in the configuration
      */
-    private function forceSSL() {
-        $mode = $this->config()->force_ssl;
+    private static function force_ssl() {
+        $mode = self::config()->force_ssl;
         
         if(!is_bool($mode)) {
             user_error("Expected boolean in SSPSecurity::force_ssl", E_USER_ERROR);
