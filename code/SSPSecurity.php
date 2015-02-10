@@ -54,6 +54,8 @@ class SSPSecurity extends Controller {
 
         // Prevent clickjacking, see https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options
         $this->response->addHeader('X-Frame-Options', 'SAMEORIGIN');
+        
+        $this->extend('onAfterInit');
     }
 
     public function index() {
