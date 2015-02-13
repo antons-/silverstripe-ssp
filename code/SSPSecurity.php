@@ -1,6 +1,6 @@
 <?php
 /**
- * Replaces the default Silverstripe {@link Security} class for dealing with SimpleSAMLphp
+ * Replaces the default SilverStripe {@link Security} class for dealing with SimpleSAMLphp
  * authentication
  * 
  * @package silverstripe-ssp
@@ -16,7 +16,7 @@ class SSPSecurity extends Controller {
     
     /**
      * Use this authenticator as the default when an authentication source isn't specified.
-     * Authenticators can be Silverstripe environment specific
+     * Authenticators can be SilverStripe environment specific
      * @var mixed
      */
     private static $default_authenticator;
@@ -29,7 +29,7 @@ class SSPSecurity extends Controller {
     private static $default_logged_in_url;
 
     /**
-     * Replace the default Silverstripe Security class
+     * Replace the default SilverStripe Security class
      * @var boolean
      */
     private static $enable_ssp_auth = true;
@@ -45,7 +45,8 @@ class SSPSecurity extends Controller {
         'login',
         'logout',
         'loggedout',
-        'ping'
+        'ping',
+        'LoginForm'
     );
 
     public function init() {
@@ -53,6 +54,8 @@ class SSPSecurity extends Controller {
 
         // Prevent clickjacking, see https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options
         $this->response->addHeader('X-Frame-Options', 'SAMEORIGIN');
+        
+        $this->extend('onAfterInit');
     }
 
     public function index() {
@@ -62,13 +65,15 @@ class SSPSecurity extends Controller {
     }
     
     /**
-     * Log the current user into the identity provider, and then Silverstripe
+     * Log the current user into the identity provider, and then SilverStripe
      * @see SimpleSAML_Auth_Simple->login()
      */
     public function login() {
         self::force_ssl();
+        
+        if(isset($_GET['BackURL'])) Session::set("BackURL", $_GET['BackURL']);
 
-        $auth = self::get_authenticator();
+        $auth = SSPAuthFactory::get_authenticator();
         
         $auth->requireAuth(array(
             'ReturnTo' => '/Security/login',
@@ -104,7 +109,7 @@ class SSPSecurity extends Controller {
     public function logout() {
         self::force_ssl();
         
-        $auth = self::get_authenticator();
+        $auth = SSPAuthFactory::get_authenticator();
         
         $auth->logout(array(
             'ReturnTo' => '/Security/loggedout'
@@ -112,7 +117,7 @@ class SSPSecurity extends Controller {
     }
 
     /**
-     * Log the currently logged in user out of the local Silverstripe website.
+     * Log the currently logged in user out of the local SilverStripe website.
      * This function should only be called after logging out of the identity provider.
      *
      * @see logout()
@@ -120,12 +125,12 @@ class SSPSecurity extends Controller {
     public function loggedout() {
         self::force_ssl();
         
-        //Log out Silverstripe members
+        //Log out SilverStripe members
         if($member = Member::currentUser()) {
             $member->logout();
         }
         
-        $auth = self::get_authenticator();
+        $auth = SSPAuthFactory::get_authenticator();
         
         $auth->logoutComplete();
         
@@ -136,11 +141,12 @@ class SSPSecurity extends Controller {
     }
 
     /**
-     * Attempt to passively authenticate the user with the identity provider, then Silverstripe.
+
+     * Attempt to passively authenticate the user with the identity provider, then SilverStripe.
      * 
-     * If the user is not authenticated in Silverstripe but is on the identity provider, this will 
-     * passively authenticate them in Silverstripe and redirect them to the current page. If the 
-     * user is already authenticated in Silverstripe this function returns nothing.
+     * If the user is not authenticated in SilverStripe but is on the identity provider, this will 
+     * passively authenticate them in SilverStripe and redirect them to the current page. If the 
+     * user is already authenticated in SilverStripe this function returns nothing.
      * 
      * Passive authentication is not enabled by default and an explicit call to 'SSPSecurity::passive_login()'
      * needs to be added to your 'Page_Controller->init()' function.
@@ -169,83 +175,20 @@ class SSPSecurity extends Controller {
     }
 
     /**
-     * Gets the current SSPAuthenticator class used for SimpleSAMLphp authentication
-     * @return SSPAuthenticator Active session for authentication
+     * Redirects the user to the identity provider portal for login
      */
-    private static function get_authenticator() {
+    public function LoginForm() {
+        $self::force_ssl();
         
-        if(!is_null(Session::get('ssp_current_auth'))) {
-            $ssp = unserialize(Session::get('ssp_current_auth'));   
+        if(isset($_SERVER['HTTP_REFERER'])) Session::set("BackURL", $_SERVER['HTTP_REFERER']);
 
-            if($ssp->isAuthenticated()) {
-                return $ssp;   
-            }
-            
-            else {
-                Session::clear('SimpleSAMLphp_SESSION');
-                Session::clear('ssp_current_auth');
-            }
-        }
-        
-        return self::init_authenticator();   
-    }
-    
-    /**
-     * Initialises the selected SSPAuthenticator class for SimpleSAMLphp authentication
-     * @return SSPAuthenticator Active session for authentication
-     */
-    private static function init_authenticator() {
-        $authenticators = self::config()->authenticators;
-        
-        if(!$authenticators || !is_array($authenticators)) {
-            user_error("Expected array of authentication sources in SSPSecurity::authenticators", E_USER_ERROR);
-        }
-        
-        $auth_source = '';
+		$auth = SSPAuthFactory::get_authenticator();
 
-        //If set, override authentication sources in config
-        if(isset($_GET['as'])) {
-            $auth_source = $_GET['as'];
-        }
-        
-        //Else look for the default authentication source
-        else {
-            $default_auth = self::config()->default_authenticator;
-            
-            $env = Director::get_environment_type();
-            
-            if(is_string($default_auth)) {
-                $auth_source = $default_auth;
-            }
-            
-            //Use the current environment defined in the config
-            else if(is_array($default_auth) && array_key_exists($env, $default_auth)) {
-                $auth_source = $default_auth[$env];
-            }
-        }
-        
-        //If no auth_source is found, default to the first authentication source
-        if(empty($auth_source)) {
-            $auth_source = key($authenticators);
-        }
-        
-        if(!array_key_exists($auth_source, $authenticators)) {
-            user_error("'$auth_source' does not exist in SSPSecurity::authenticators", E_USER_ERROR);
-        }
-
-        $class = $authenticators[$auth_source];
-        
-        if(!class_exists($class)) {
-            user_error("$class does not exist", E_USER_ERROR);
-        }
-
-        if(!is_subclass_of($class, 'SSPAuthenticator')) {
-            user_error("$class does not extend from SSPAuthenticator", E_USER_ERROR);
-        }
-
-        $authenticator = new $class($auth_source);
-
-        return $authenticator;   
+        $auth->login(array(
+            'ForceAuthn' => TRUE,
+            'ReturnTo' => '/Security/login',
+            'ReturnCallback' => $auth->loginComplete()
+        ));
     }
     
     /**
