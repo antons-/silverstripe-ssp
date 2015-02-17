@@ -23,7 +23,8 @@ abstract class SSPAuthenticator extends SimpleSAML_Auth_Simple {
         //Use the same session as SimpleSAMLphp to avoid session state loss
         Session::start(SimpleSAML_Session::getInstance()->getSessionId());
 
-        Session::set('ssp_current_auth', serialize($this));
+        Session::set('ssp_current_auth_source', $this->getAuthSource()->getAuthId());
+        Session::set('ssp_current_auth_class', get_class($this));
 
         Session::save();
     }

@@ -14,8 +14,11 @@ class SSPAuthFactory {
      */
     public static function get_authenticator() {
         
-        if(!is_null(Session::get('ssp_current_auth'))) {
-            $ssp = unserialize(Session::get('ssp_current_auth'));   
+        $auth_class = Session::get('ssp_current_auth_class');
+        $auth_source = Session::get('ssp_current_auth_source');
+        
+        if(!is_null($auth_source) && !is_null($auth_class)) {
+            $ssp = self::create_authenticator($auth_class, $auth_source);
 
             if($ssp->isAuthenticated()) {
                 return $ssp;   
@@ -23,10 +26,11 @@ class SSPAuthFactory {
             
             else {
                 Session::clear('SimpleSAMLphp_SESSION');
-                Session::clear('ssp_current_auth');
+                Session::clear('ssp_current_auth_class');
+                Session::clear('ssp_current_auth_source');
             }
         }
-        
+
         return self::init_authenticator();   
     }
     
@@ -68,7 +72,7 @@ class SSPAuthFactory {
         if(empty($auth_source)) {
             $auth_source = key($authenticators);
         }
-        
+
         if(!array_key_exists($auth_source, $authenticators)) {
             user_error("'$auth_source' does not exist in SSPSecurity::authenticators", E_USER_ERROR);
         }
@@ -83,8 +87,18 @@ class SSPAuthFactory {
             user_error("$class does not extend from SSPAuthenticator", E_USER_ERROR);
         }
 
-        $authenticator = new $class($auth_source);
+        return self::create_authenticator($class, $auth_source);
+    }
+    
+    /**
+     * Creates an SSPAuthenticator object
+     * @param string $auth_class The SSPAuthenticator class name to be instantiated
+     * @param string $auth_source The authentication source name defined in the SimpleSAMLphp config
+     * @return mixed
+     */
+    private static function create_authenticator($auth_class, $auth_source) {        
+        $authenticator = new $auth_class($auth_source);
 
-        return $authenticator;   
+        return $authenticator;  
     }
 }

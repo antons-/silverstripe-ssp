@@ -126,6 +126,8 @@ class SSPSecurity extends Controller {
         if($member = Member::currentUser()) {
             $member->logout();
         }
+        
+        Cookie::force_expiry('SimpleSAMLAuthToken');
     
         return $this->redirect(str_replace('https', 'http', Director::absoluteBaseURL()));
     }
