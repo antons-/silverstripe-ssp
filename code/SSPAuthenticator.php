@@ -15,12 +15,6 @@ abstract class SSPAuthenticator extends SimpleSAML_Auth_Simple {
      */
     abstract function authenticate();
     
-    public function onAfterLogin() {
-    }
-    
-    public function onAfterLogout() {
-    }
-    
     /**
      * When login is complete, save the SSPAuthentication object to the session
      */
@@ -32,12 +26,5 @@ abstract class SSPAuthenticator extends SimpleSAML_Auth_Simple {
         Session::set('ssp_current_auth', serialize($this));
 
         Session::save();
-    }
-    
-    /**
-     * When logout is complete, clear the SSPAuthentication object from the session
-     */
-    final public function logoutComplete() {
-        Session::clear('ssp_current_auth');
     }
 }

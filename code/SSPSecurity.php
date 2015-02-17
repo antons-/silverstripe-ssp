@@ -96,9 +96,6 @@ class SSPSecurity extends Controller {
         
         Session::clear('BackURL');
         
-        //Callback for after login
-        $auth->onAfterLogin();
-        
         return $this->redirect($dest);
     }
     
@@ -129,13 +126,6 @@ class SSPSecurity extends Controller {
         if($member = Member::currentUser()) {
             $member->logout();
         }
-        
-        $auth = SSPAuthFactory::get_authenticator();
-        
-        $auth->logoutComplete();
-        
-        //Callback for after logout
-        $auth->onAfterLogout();;
     
         return $this->redirect(str_replace('https', 'http', Director::absoluteBaseURL()));
     }
