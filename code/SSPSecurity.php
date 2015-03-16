@@ -178,7 +178,7 @@ class SSPSecurity extends Controller {
      * Redirects the user to the identity provider portal for login
      */
     public function LoginForm() {
-        $self::force_ssl();
+        self::force_ssl();
         
         if(isset($_SERVER['HTTP_REFERER'])) Session::set("BackURL", $_SERVER['HTTP_REFERER']);
 
