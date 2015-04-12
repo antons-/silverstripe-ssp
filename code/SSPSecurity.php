@@ -27,6 +27,13 @@ class SSPSecurity extends Controller {
      * @var string
      */
     private static $default_logged_in_url;
+    
+    /**
+     * Redirect the user to the URL after logout is complete. If the session contains
+     * a BackURL this is used instead
+     * @var string
+     */
+    private static $default_logged_out_url;
 
     /**
      * Replace the default SilverStripe Security class
@@ -106,6 +113,8 @@ class SSPSecurity extends Controller {
     public function logout() {
         self::force_ssl();
         
+        if(isset($_GET['BackURL'])) Session::set("BackURL", $_GET['BackURL']);
+        
         $auth = SSPAuthFactory::get_authenticator();
         
         $auth->logout(array(
@@ -128,8 +137,15 @@ class SSPSecurity extends Controller {
         }
         
         Cookie::force_expiry('SimpleSAMLAuthToken');
+        
+        //Use the BackURL for redirection if avaiable, or use the default logged out URL
+        $backUrl = Session::get('BackURL');
+        
+        $dest = !empty($backUrl) ? $backUrl :  $this->config()->default_logged_out_url;
+        
+        Session::clear('BackURL');
     
-        return $this->redirect(str_replace('https', 'http', Director::absoluteBaseURL()));
+        return $this->redirect($dest);
     }
 
     /**
