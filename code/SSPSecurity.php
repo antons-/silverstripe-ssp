@@ -72,6 +72,14 @@ class SSPSecurity extends Controller {
     }
     
     /**
+     * This action is available as a keep alive, so user
+     * sessions don't timeout. A common use is in the admin.
+     */
+	public function ping() {
+		return 1;
+	}
+    
+    /**
      * Log the current user into the identity provider, and then SilverStripe
      * @see SimpleSAML_Auth_Simple->login()
      */
