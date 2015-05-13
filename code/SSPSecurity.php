@@ -218,7 +218,7 @@ class SSPSecurity extends Controller {
         }
         
         if($mode) {
-            Director::forceSSL();
+            Director::forceSSL(null, $_SERVER['HTTP_HOST']);
         }
     }
 }
