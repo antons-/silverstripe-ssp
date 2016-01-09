@@ -18,18 +18,20 @@
  * @package silverstripe-ssp
  * @author Anton Smith <anton.smith@op.ac.nz>
  */
-class AdfsAuthenticator extends SSPAuthenticator {
+class AdfsAuthenticator extends SSPAuthenticator
+{
 
     /**
      * Provide custom Silverstripe authentication logic for a SimpleSAMLphp authentication source
      * to authenticate a user
      */
-    public function authenticate() {
+    public function authenticate()
+    {
         $attributes = $this->getAttributes();
         
         $email = $attributes["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"][0];
         
-        $member = Member::get()->filter('Email' , $email)->first();
+        $member = Member::get()->filter('Email', $email)->first();
         
         //If the member does not exist in Silverstripe, create them
         if (!$member) {
