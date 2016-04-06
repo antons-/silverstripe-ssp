@@ -1,5 +1,9 @@
 # SilverStripe SSP module #
 
+**I am no longer maintaining this module since SilverStripe Ltd have released their own SAML authentication module - [silverstripe/silverstripe-activedirectory](https://github.com/silverstripe/silverstripe-activedirectory)**
+
+------------------------------------
+
 This module is a wrapper around the [SimpleSAMLphp](http://simplesamlphp.org/)  thirdparty library, providing federated authentication.
 
 It replaces the `Security` controller with the `SSPSecurity` controller which deals with authenticating users. 
